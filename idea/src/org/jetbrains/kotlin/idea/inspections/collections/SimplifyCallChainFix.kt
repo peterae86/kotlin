@@ -16,15 +16,17 @@
 
 package org.jetbrains.kotlin.idea.inspections.collections
 
+import com.intellij.codeInsight.FileModificationService
 import com.intellij.codeInsight.actions.OptimizeImportsProcessor
 import com.intellij.codeInspection.LocalQuickFix
 import com.intellij.codeInspection.ProblemDescriptor
 import com.intellij.openapi.project.Project
-import com.intellij.psi.codeStyle.CodeStyleManager
 import org.jetbrains.kotlin.idea.core.ShortenReferences
 import org.jetbrains.kotlin.idea.core.moveFunctionLiteralOutsideParentheses
 import org.jetbrains.kotlin.idea.core.replaced
+import org.jetbrains.kotlin.idea.formatter.adjustLineIndent
 import org.jetbrains.kotlin.idea.intentions.callExpression
+import org.jetbrains.kotlin.idea.util.application.executeWriteCommand
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.psiUtil.PsiChildRange
 
@@ -81,20 +83,21 @@ class SimplifyCallChainFix(
             "$receiverExpressionOrEmptyString$operationSign$newCallText($argumentsText)"
         )
 
+        val project = qualifiedExpression.project
+        val file = qualifiedExpression.containingKtFile
+        val result = qualifiedExpression.replaced(newQualifiedOrCallExpression)
         if (lambdaExpression != null) {
-            val callExpression = when (newQualifiedOrCallExpression) {
-                is KtQualifiedExpression -> newQualifiedOrCallExpression.callExpression
-                is KtCallExpression -> newQualifiedOrCallExpression
+            val callExpression = when (result) {
+                is KtQualifiedExpression -> result.callExpression
+                is KtCallExpression -> result
                 else -> null
             }
             callExpression?.moveFunctionLiteralOutsideParentheses()
         }
 
-        val project = qualifiedExpression.project
-        val file = qualifiedExpression.containingKtFile
-        val result = qualifiedExpression.replaced(newQualifiedOrCallExpression)
-        val reformatted = CodeStyleManager.getInstance(project).reformat(result)
-        ShortenReferences.DEFAULT.process(reformatted as KtElement)
+        result.adjustLineIndent()
+        ShortenReferences.DEFAULT.process(result)
+
         if (runOptimizeImports) {
             OptimizeImportsProcessor(project, file).run()
         }
