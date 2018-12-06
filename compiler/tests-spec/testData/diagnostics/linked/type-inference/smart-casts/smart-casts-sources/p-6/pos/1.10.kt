@@ -339,25 +339,3 @@ fun case_26(y: Int) {
         <!DEBUG_INFO_EXPRESSION_TYPE("kotlin.Int & kotlin.Int?")!>x<!>
     }
 }
-
-// TESTCASE NUMBER: 27
-fun <A, B : Inv<A>, C: Out<A?>>case_27_1(a: C, b: B) = select(a.x, b.x)
-
-fun case_27() {
-    val x = case_27_1(Out(10), Inv(0.1))
-
-    if (x != null) {
-        <!DEBUG_INFO_EXPRESSION_TYPE("{Number & Comparable<{Int & Byte & Short & Long & Double}>} & {Number & Comparable<{Int & Byte & Short & Long & Double}>}?")!>x<!>
-    }
-}
-
-// TESTCASE NUMBER: 28
-fun <A, B : Inv<A>, C: Out<A?>>case_28_1(a: C, b: B) = select(a.x, b.x)
-
-fun case_28(y: Int) {
-    val x = case_28_1(Out(y), Inv(0.1))
-
-    if (x != null) {
-        <!DEBUG_INFO_EXPRESSION_TYPE("{Number & Comparable<{Int & Double}>} & {Number & Comparable<{Int & Double}>}?")!>x<!>
-    }
-}
