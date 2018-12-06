@@ -557,7 +557,6 @@ open class KtUltraLightClass(classOrObject: KtClassOrObject, internal val suppor
             if (newName != null) return newName
         }
 
-        if (isInternalNonPublishedApi(declaration)) return KotlinTypeMapper.InternalNameMapper.mangleInternalName(name, support.moduleName)
         return name
     }
 

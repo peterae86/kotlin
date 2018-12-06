@@ -37,7 +37,6 @@ import org.jetbrains.kotlin.codegen.JvmCodegenUtil
 import org.jetbrains.kotlin.codegen.state.IncompatibleClassTracker
 import org.jetbrains.kotlin.codegen.state.KotlinTypeMapper
 import org.jetbrains.kotlin.config.JvmTarget
-import org.jetbrains.kotlin.descriptors.ClassifierDescriptor
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.descriptors.annotations.AnnotationDescriptor
 import org.jetbrains.kotlin.idea.caches.lightClasses.IDELightClassContexts
@@ -52,8 +51,6 @@ import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.psiUtil.hasExpectModifier
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.deprecation.DeprecationResolver
-import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
-import org.jetbrains.kotlin.resolve.descriptorUtil.getAllSuperClassifiers
 import org.jetbrains.kotlin.resolve.lazy.BodyResolveMode
 import org.jetbrains.kotlin.resolve.lazy.NoDescriptorForDeclarationException
 import org.jetbrains.kotlin.resolve.source.getPsi
@@ -182,11 +179,7 @@ class IDELightClassGenerationSupport(private val project: Project) : LightClassG
     }
 
     private fun implementsKotlinCollection(classOrObject: KtClassOrObject): Boolean {
-        if (classOrObject.superTypeListEntries.isEmpty()) return false
-
-        return (resolveToDescriptor(classOrObject) as? ClassifierDescriptor)?.getAllSuperClassifiers()?.any {
-            it.fqNameSafe.asString().startsWith("kotlin.collections.")
-        } == true
+        return false
     }
 
     private fun KtFile.hasAlias(shortName: Name?): Boolean {
